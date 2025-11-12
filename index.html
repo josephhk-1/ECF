@@ -28,6 +28,14 @@
             direction: ltr;
             text-align: left;
         }
+        /* Animation pour le message de succès */
+        @keyframes scale-in {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-in {
+            animation: scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -55,10 +63,14 @@
                 ar: 'كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)', 
                 fr: 'Église Notre-Dame des Coptes (Paris 20e)' 
             },
+            'service-name-header': {
+                ar: 'ECF | طلاب أقباط فرنسا',
+                fr: 'ECF | Étudiants Coptes en France'
+            },
             'main-title': { ar: 'يلا نسأل أبونا!', fr: 'Posez votre Question au Père !' },
             'sub-title': { ar: 'مع قدس أبونا يشوع الأنبا بيشوي', fr: 'Avec le Rév. Père Yéshoua El Anba Bichoy' },
             'subject-title': { 
-                ar: 'عن موضوع: ربنا عايز إيه مني؟!', 
+                ar: 'عن موضوع: ربنا عايز إيه إيه مني؟!', 
                 fr: 'Sur le thème : Qu\'est-ce que Dieu veut de moi ?!' 
             },
             'deadline-text': { 
@@ -81,16 +93,19 @@
             
             // Messages
             'msg-empty': { ar: 'يا ريت تكتب سؤالك الأول.', fr: 'Veuillez écrire votre question d\'abord.' },
-            'msg-success': { ar: 'سؤالك اتبعت بنجاح! شكراً على المشاركة.', fr: 'Votre question a été envoyée avec succès ! Merci de votre participation.' },
+            'msg-success-header': { ar: 'Merci gdn', fr: 'Merci gdn' }, // تم حذف علامة التعجب
+            'msg-success-body': { ar: 'سؤالك اتبعت خلاص 😉', fr: 'C\'est envoyé, merci 😉' }, // تم تعديل النص مع الإيموجي
+            'msg-success-footer-base': { ar: 'مستنيينك يوم السبت', fr: 'On vous attend ce Samedi' }, // النص الأساسي بدون اسم
             'msg-error': { ar: 'حصلت مشكلة في الإرسال. يا ريت تحاول تاني.', fr: 'Un problème est survenu lors de l\'envoi. Veuillez réessayer.' },
 
             // Footer
             'footer-phrase': { ar: 'مستنيينكم يوم السبت', fr: 'On vous attend ce Samedi' },
             'footer-church': { ar: 'كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)', fr: 'Église Notre-Dame des Coptes (Paris 20e)' },
-            'footer-service': { ar: 'اجتماع شباب الأقباط في باريس', fr: 'Rassemblement des Étudiants Coptes de Paris' }
+            'footer-service': { ar: 'اجتماع ECF | شباب الأقباط في فرنسا', fr: 'Rassemblement ECF | Étudiants Coptes en France' }
         };
 
         let currentLang = 'ar';
+        let submittedName = ''; // Global variable to store the name for personalization
 
         function updateContent(lang) {
             currentLang = lang;
@@ -107,19 +122,38 @@
                 document.documentElement.lang = 'fr';
             }
 
-            // 2. Mettre à jour tous les éléments textuels
+            // 2. Mettre à jour جميع العناصر النصية
             Object.keys(texts).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
                     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                         element.placeholder = texts[key][lang];
-                    } else if (element.tagName === 'BUTTON' || key === 'lang-switch') {
-                         element.textContent = texts[key][lang];
+                    } else if (key === 'lang-switch') {
+                         element.textContent = texts['lang-switch'][lang];
                     } else {
                         element.textContent = texts[key][lang];
                     }
                 }
             });
+
+            // 3. Gérer تحديث رسالة النجاح المُخصصة إذا كانت مرئية
+            const successSection = document.getElementById('success-section');
+            if (!successSection.classList.contains('hidden')) {
+                const successFooter = document.getElementById('msg-success-footer');
+                let personalizedText;
+                
+                if (submittedName) {
+                    if (lang === 'ar') {
+                        personalizedText = `مستنيينك يا ${submittedName} يوم السبت`;
+                    } else {
+                        personalizedText = `On vous attend ${submittedName} ce Samedi`;
+                    }
+                } else {
+                    // إذا لم يتم كتابة الاسم
+                    personalizedText = texts['msg-success-footer-base'][lang];
+                }
+                successFooter.textContent = personalizedText;
+            }
         }
 
         function toggleLanguage() {
@@ -133,20 +167,25 @@
         });
     </script>
     
-    <div class="container mx-auto p-6 md:p-10 bg-white rounded-xl shadow-coptic transition-all duration-300">
+    <!-- Conteneur central -->
+    <div class="container mx-auto p-6 md:p-10 bg-white rounded-xl shadow-coptic transition-all duration-300 max-w-xl">
         
         <!-- Bouton de basculement de langue -->
         <div class="flex justify-end mb-4">
             <button id="lang-switch" class="bg-coptic-gold text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-coptic-blue transition duration-300 shadow-md">Français</button>
         </div>
 
-        <!-- Logo الخدمة -->
-        <div class="flex justify-center mb-6">
+        <!-- Logo و اسم الخدمة -->
+        <div class="flex flex-col items-center mb-6">
             <img src="logo.png" alt="شعار خدمة الشباب" class="w-24 h-24 object-contain rounded-full border-2 border-coptic-gold" onerror="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';">
             <!-- Placeholder affiché si logo.png est absent (caché par défaut) -->
             <div class="hidden w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500 font-semibold">
                 LOGO
             </div>
+            <!-- اسم الخدمة تحت اللوجو -->
+            <p id="service-name-header" class="text-base font-semibold text-coptic-blue mt-2">
+                ECF | طلاب أقباط فرنسا
+            </p>
         </div>
 
         <!-- En-tête de l'événement -->
@@ -167,8 +206,8 @@
             </p>
         </header>
 
-        <!-- Zone de soumission de la question -->
-        <section class="mt-8">
+        <!-- Formulaire de soumission (caché après succès) -->
+        <section id="form-section" class="mt-8 transition-opacity duration-500">
             <h2 id="form-heading" class="text-2xl font-bold text-coptic-blue mb-2">
                 سؤالك يهمنا كلنا! 
             </h2>
@@ -206,22 +245,42 @@
                     </svg>
                 </button>
 
-                <!-- Message de succès/خطأ -->
+                <!-- Message d'erreur simple -->
                 <div id="messageBox" class="p-4 mt-4 rounded-lg text-center hidden font-semibold" role="alert"></div>
 
             </form>
         </section>
+        
+        <!-- Zone de succès animée (cachée par défaut) -->
+        <section id="success-section" class="hidden text-center py-10 animate-scale-in">
+            <!-- Icone de succès animé -->
+            <svg class="mx-auto w-24 h-24 text-coptic-gold animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            
+            <h3 id="msg-success-header" class="text-4xl font-extrabold text-coptic-blue mt-6 mb-4">
+                Merci gdn
+            </h3>
+            <p id="msg-success-body" class="text-lg text-gray-700 mb-6">
+                سؤالك اتبعت خلاص 😉
+            </p>
+            <!-- هذا هو النص الذي سيتم تخصيصه بالاسم -->
+            <p id="msg-success-footer" class="text-3xl font-black text-coptic-gold">
+                مستنيينك يوم السبت
+            </p>
+            <button onclick="location.reload()" class="mt-8 bg-coptic-blue text-white px-6 py-2 rounded-lg font-semibold hover:bg-coptic-gold transition duration-300 shadow-md">
+                ابعت سؤال تاني / Poser une autre question
+            </button>
+        </section>
+
 
         <!-- Pied de page (بالعامية المصرية) -->
         <footer class="text-center mt-12 pt-6 border-t border-gray-200">
-            <p id="footer-phrase" class="text-2xl font-black text-coptic-gold">
-                مستنيينكم يوم السبت
-            </p>
-            <p id="footer-service" class="text-sm text-gray-700 mt-2">
-                اجتماع شباب الأقباط في باريس
+            <p id="footer-service" class="text-lg font-bold text-coptic-blue mt-2">
+                اجتماع ECF | شباب الأقباط في فرنسا
             </p>
             <!-- اسم الكنيسة (المكان) -->
-            <p id="footer-church" class="text-xs text-gray-500 mt-1">
+            <p id="footer-church" class="text-sm text-gray-700 mt-1">
                 كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)
             </p>
         </footer>
@@ -233,25 +292,26 @@
         // **********************************************************
         // *** ⚠️ ÉTAPE CRUCIALE: REMPLACEZ CET URL APRES VERIFICATION DE L'EMAIL ⚠️ ***
         // **********************************************************
-        // تم تعيين هذا المتغير الآن لربط إرسال النموذج مباشرة بإيميلك.
-        // يجب عليك فقط تفعيل الرابط الذي سيصلك على الإيميل بعد أول تجربة إرسال.
+        // هذا الرابط مُعدّ للإرسال مباشرة إلى eng.joseph.h.kamal@gmail.com
         const ACTION_URL = 'https://formsubmit.co/eng.joseph.h.kamal@gmail.com'; 
         const EMAIL_RECEIVER = 'eng.joseph.h.kamal@gmail.com'; 
         const EMAIL_SUBJECT = 'يلا نسأل أبونا - سؤال جديد';
         // **********************************************************
 
         const form = document.getElementById('questionForm');
+        const formSection = document.getElementById('form-section');
+        const successSection = document.getElementById('success-section');
         const submitButton = document.getElementById('submitButton');
         const messageBox = document.getElementById('messageBox');
 
-        // Fonction d'affichage du message
+        // Fonction d'affichage du message (pour les erreurs avant l'envoi)
         function displayMessage(text, isSuccess) {
             messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
             messageBox.classList.add(isSuccess ? 'bg-green-100' : 'bg-red-100', isSuccess ? 'text-green-700' : 'text-red-700');
             messageBox.textContent = text;
         }
 
-        // Fonction pour gérer le statut du bouton
+        // Fonction pour gérer le statut du bouton/spinner
         function setSubmitting(isSubmitting) {
             submitButton.disabled = isSubmitting;
             document.getElementById('loadingSpinner').classList.toggle('hidden', !isSubmitting);
@@ -263,7 +323,8 @@
             e.preventDefault();
             messageBox.classList.add('hidden');
 
-            const name = form.querySelector('input[name="name"]').value;
+            const nameInput = form.querySelector('input[name="name"]');
+            const name = nameInput.value.trim();
             const question = form.querySelector('textarea[name="question"]').value;
 
             // Simple validation
@@ -272,12 +333,10 @@
                 return;
             }
 
-            // Construire les données pour l'envoi
+            // Construction des données pour FormSubmit
             const formData = new FormData();
-            
-            // Champs FormSubmit requis
-            formData.append('_subject', EMAIL_SUBJECT); // Titre de l'الـ email
-            formData.append('_replyto', EMAIL_RECEIVER); // Optionnel: للرد مباشرة على الإيميل
+            formData.append('_subject', EMAIL_SUBJECT); // Titre de l'email
+            formData.append('_replyto', EMAIL_RECEIVER); // Optionnel: للرد
             
             // Champs de l'utilisateur
             formData.append('الاسم (Name)', name || (currentLang === 'ar' ? 'لم يذكر اسمه' : 'Anonymous'));
@@ -285,24 +344,44 @@
             
             setSubmitting(true);
 
-            // ⚠️ تنبيه: لا حاجة للتحقق من YOUR_FORMSUBMIT_ACTION_URL هنا لأنه تم تعيينه فعليًا.
-            
             try {
-                // Envoi à FormSubmit (Utilise mode: 'no-cors' implicitement pour éviter les erreurs de console)
                 const response = await fetch(ACTION_URL, {
                     method: 'POST',
                     body: formData,
                 });
                 
-                // FormSubmit يعيد توجيه المتصفح في حالة النجاح،
-                // ولكن في بيئة الـ iFrame (المعاينة)، يظهر كإرسال ناجح.
+                // FormSubmit renvoie un succès (أو redirection)
                 
-                form.reset();
-                displayMessage(texts['msg-success'][currentLang], true);
+                // 1. التخصيص بالاسم
+                const successFooter = document.getElementById('msg-success-footer');
+                let personalizedFooterText;
+                
+                if (name) {
+                    // التخصيص حسب اللغة (سواء عربي أو فرنسي)
+                    if (currentLang === 'ar') {
+                        personalizedFooterText = `مستنيينك يا ${name} يوم السبت`;
+                    } else {
+                        personalizedFooterText = `On vous attend ${name} ce Samedi`;
+                    }
+                } else {
+                    // استخدام النص الأساسي إذا لم يكتب الاسم
+                    personalizedFooterText = texts['msg-success-footer-base'][currentLang];
+                }
+                
+                // حفظ الاسم في المتغير العام لتحديث اللغة لاحقاً (إن حدث تبديل)
+                submittedName = name; 
+                
+                // وضع النص المخصص
+                successFooter.textContent = personalizedFooterText;
+
+                // 2. إخفاء الفورم وإظهار رسالة النجاح المتحركة
+                formSection.classList.add('hidden');
+                successSection.classList.remove('hidden');
 
             } catch (error) {
                 console.error('Submission error:', error);
                 displayMessage(texts['msg-error'][currentLang], false);
+                formSection.classList.remove('hidden'); // إظهار الفورم مرة أخرى في حالة الخطأ
             } finally {
                 setSubmitting(false);
             }
