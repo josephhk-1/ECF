@@ -70,8 +70,13 @@
             'main-title': { ar: 'يلا نسأل أبونا!', fr: 'Posez votre Question au Père !' },
             'sub-title': { ar: 'مع قدس أبونا يشوع الأنبا بيشوي', fr: 'Avec le Rév. Père Yéshoua El Anba Bichoy' },
             'subject-title': { 
-                ar: 'عن موضوع: ربنا عايز إيه إيه مني؟!', 
+                ar: 'عن موضوع: ربنا عايز إيه مني؟!', 
                 fr: 'Sur le thème : Qu\'est-ce que Dieu veut de moi ?!' 
+            },
+            // موعد الاجتماع الجديد (السبت 15 نوفمبر)
+            'meeting-time-date': {
+                ar: 'السبت، 15 نوفمبر 2025، الساعة 12:00 (الظهر)',
+                fr: 'Samedi, 15 Novembre 2025, 12h00 (Midi)'
             },
             'deadline-text': { 
                 ar: 'آخر ميعاد لإرسال الأسئلة:', 
@@ -80,11 +85,6 @@
             'deadline-time': { ar: 'الجمعة، الساعة 7 مساءً', fr: 'Vendredi, 19h00' },
 
             // Form
-            'form-heading': { ar: 'سؤالك يهمنا كلنا!', fr: 'Votre question nous intéresse !' },
-            'form-subheading': { 
-                ar: 'ابعت سؤالك دلوقتي علشان أبونا يجاوب عليه يوم السبت.', 
-                fr: 'Envoyez votre question maintenant pour que le Père puisse y répondre samedi.' 
-            },
             'name-label': { ar: 'الاسم (اختياري)', fr: 'Votre Nom (Optionnel)' },
             'name-placeholder': { ar: 'لو عايز تكتب اسمك...', fr: 'Écrivez votre nom si vous le souhaitez...' },
             'question-label': { ar: 'سؤالك عشان أبونا يجاوب عليه', fr: 'Votre question pour le Père' },
@@ -93,19 +93,18 @@
             
             // Messages
             'msg-empty': { ar: 'يا ريت تكتب سؤالك الأول.', fr: 'Veuillez écrire votre question d\'abord.' },
-            'msg-success-header': { ar: 'Merci gdn', fr: 'Merci gdn' }, // تم حذف علامة التعجب
-            'msg-success-body': { ar: 'سؤالك اتبعت خلاص 😉', fr: 'C\'est envoyé, merci 😉' }, // تم تعديل النص مع الإيموجي
+            'msg-success-header': { ar: 'Merci gdn', fr: 'Merci gdn' }, // بدون علامة تعجب
+            'msg-success-body': { ar: 'سؤالك اتبعت خلاص 😉', fr: 'C\'est envoyé, merci 😉' }, // مع الإيموجي
             'msg-success-footer-base': { ar: 'مستنيينك يوم السبت', fr: 'On vous attend ce Samedi' }, // النص الأساسي بدون اسم
             'msg-error': { ar: 'حصلت مشكلة في الإرسال. يا ريت تحاول تاني.', fr: 'Un problème est survenu lors de l\'envoi. Veuillez réessayer.' },
 
             // Footer
-            'footer-phrase': { ar: 'مستنيينكم يوم السبت', fr: 'On vous attend ce Samedi' },
             'footer-church': { ar: 'كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)', fr: 'Église Notre-Dame des Coptes (Paris 20e)' },
             'footer-service': { ar: 'اجتماع ECF | شباب الأقباط في فرنسا', fr: 'Rassemblement ECF | Étudiants Coptes en France' }
         };
 
         let currentLang = 'ar';
-        let submittedName = ''; // Global variable to store the name for personalization
+        let submittedName = ''; 
 
         function updateContent(lang) {
             currentLang = lang;
@@ -149,7 +148,6 @@
                         personalizedText = `On vous attend ${submittedName} ce Samedi`;
                     }
                 } else {
-                    // إذا لم يتم كتابة الاسم
                     personalizedText = texts['msg-success-footer-base'][lang];
                 }
                 successFooter.textContent = personalizedText;
@@ -200,21 +198,21 @@
             <p id="subject-title" class="text-xl font-bold text-gray-800 mt-2">
                 عن موضوع: ربنا عايز إيه مني؟!
             </p>
-            <p class="text-xl font-bold text-red-500 mt-6 bg-red-50 p-3 rounded-lg inline-block">
+            <!-- موعد الاجتماع الجديد -->
+            <p class="text-2xl font-black text-coptic-gold mt-6 mb-4">
+                <span id="meeting-time-date">السبت، 15 نوفمبر 2025، الساعة 12:00 (الظهر)</span>
+            </p>
+            <!-- آخر ميعاد لإرسال الأسئلة -->
+            <p class="text-lg font-bold text-red-500 bg-red-50 p-3 rounded-lg inline-block">
                 <span id="deadline-text">آخر ميعاد لإرسال الأسئلة:</span> 
-                <span id="deadline-time" class="text-2xl font-black">الجمعة، الساعة 7 مساءً</span>
+                <span id="deadline-time" class="text-xl font-black">الجمعة، الساعة 7 مساءً</span>
             </p>
         </header>
 
         <!-- Formulaire de soumission (caché après succès) -->
         <section id="form-section" class="mt-8 transition-opacity duration-500">
-            <h2 id="form-heading" class="text-2xl font-bold text-coptic-blue mb-2">
-                سؤالك يهمنا كلنا! 
-            </h2>
-            <p id="form-subheading" class="text-lg font-normal text-gray-600 mb-6">
-                ابعت سؤالك دلوقتي علشان أبونا يجاوب عليه يوم السبت.
-            </p>
-
+            <!-- تمت إزالة العناوين هنا بناءً على طلب المستخدم -->
+            
             <form id="questionForm" class="space-y-6">
                 
                 <!-- Champ Nom (اختياري / Optionnel) -->
@@ -245,7 +243,7 @@
                     </svg>
                 </button>
 
-                <!-- Message d'erreur simple -->
+                <!-- Message d'erreur بسيط -->
                 <div id="messageBox" class="p-4 mt-4 rounded-lg text-center hidden font-semibold" role="alert"></div>
 
             </form>
@@ -255,7 +253,7 @@
         <section id="success-section" class="hidden text-center py-10 animate-scale-in">
             <!-- Icone de succès animé -->
             <svg class="mx-auto w-24 h-24 text-coptic-gold animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             
             <h3 id="msg-success-header" class="text-4xl font-extrabold text-coptic-blue mt-6 mb-4">
@@ -274,7 +272,7 @@
         </section>
 
 
-        <!-- Pied de page (بالعامية المصرية) -->
+        <!-- Pied de page (Footer) -->
         <footer class="text-center mt-12 pt-6 border-t border-gray-200">
             <p id="footer-service" class="text-lg font-bold text-coptic-blue mt-2">
                 اجتماع ECF | شباب الأقباط في فرنسا
@@ -287,15 +285,14 @@
 
     </div>
 
-    <!-- Script de soumission vers FormSubmit (pour envoi à l'email) -->
+    <!-- Script de soumission vers Formspree -->
     <script>
         // **********************************************************
-        // *** ⚠️ ÉTAPE CRUCIALE: REMPLACEZ CET URL APRES VERIFICATION DE L'EMAIL ⚠️ ***
+        // *** ⚠️ Formspree Action URL ***
         // **********************************************************
-        // هذا الرابط مُعدّ للإرسال مباشرة إلى eng.joseph.h.kamal@gmail.com
-        const ACTION_URL = 'https://formsubmit.co/eng.joseph.h.kamal@gmail.com'; 
+        // هذا الرابط مُعدّ للإرسال مباشرة إلى Formspree بالكود الخاص بك (mblqllyd)
+        const ACTION_URL = 'https://formspree.io/f/mblqllyd'; 
         const EMAIL_RECEIVER = 'eng.joseph.h.kamal@gmail.com'; 
-        const EMAIL_SUBJECT = 'يلا نسأل أبونا - سؤال جديد';
         // **********************************************************
 
         const form = document.getElementById('questionForm');
@@ -333,12 +330,10 @@
                 return;
             }
 
-            // Construction des données pour FormSubmit
+            // Construction des données لـ Formspree
             const formData = new FormData();
-            formData.append('_subject', EMAIL_SUBJECT); // Titre de l'email
-            formData.append('_replyto', EMAIL_RECEIVER); // Optionnel: للرد
             
-            // Champs de l'utilisateur
+            // Formspree يتطلب تسمية الحقول
             formData.append('الاسم (Name)', name || (currentLang === 'ar' ? 'لم يذكر اسمه' : 'Anonymous'));
             formData.append('السؤال (Question)', question);
             
@@ -348,40 +343,42 @@
                 const response = await fetch(ACTION_URL, {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'Accept': 'application/json' 
+                    }
                 });
                 
-                // FormSubmit renvoie un succès (أو redirection)
-                
-                // 1. التخصيص بالاسم
-                const successFooter = document.getElementById('msg-success-footer');
-                let personalizedFooterText;
-                
-                if (name) {
-                    // التخصيص حسب اللغة (سواء عربي أو فرنسي)
-                    if (currentLang === 'ar') {
-                        personalizedFooterText = `مستنيينك يا ${name} يوم السبت`;
+                if (response.ok) {
+                    // 1. التخصيص بالاسم
+                    const successFooter = document.getElementById('msg-success-footer');
+                    let personalizedFooterText;
+                    
+                    if (name) {
+                        if (currentLang === 'ar') {
+                            personalizedFooterText = `مستنيينك يا ${name} يوم السبت`;
+                        } else {
+                            personalizedFooterText = `On vous attend ${name} ce Samedi`;
+                        }
                     } else {
-                        personalizedFooterText = `On vous attend ${name} ce Samedi`;
+                        personalizedFooterText = texts['msg-success-footer-base'][currentLang];
                     }
-                } else {
-                    // استخدام النص الأساسي إذا لم يكتب الاسم
-                    personalizedFooterText = texts['msg-success-footer-base'][currentLang];
-                }
-                
-                // حفظ الاسم في المتغير العام لتحديث اللغة لاحقاً (إن حدث تبديل)
-                submittedName = name; 
-                
-                // وضع النص المخصص
-                successFooter.textContent = personalizedFooterText;
+                    
+                    submittedName = name; 
+                    successFooter.textContent = personalizedFooterText;
 
-                // 2. إخفاء الفورم وإظهار رسالة النجاح المتحركة
-                formSection.classList.add('hidden');
-                successSection.classList.remove('hidden');
+                    // 2. إخفاء الفورم وإظهار رسالة النجاح المتحركة
+                    formSection.classList.add('hidden');
+                    successSection.classList.remove('hidden');
+                    form.reset(); 
+
+                } else {
+                    // في حالة وجود خطأ في إرسال Formspree
+                    displayMessage(texts['msg-error'][currentLang], false);
+                }
 
             } catch (error) {
                 console.error('Submission error:', error);
                 displayMessage(texts['msg-error'][currentLang], false);
-                formSection.classList.remove('hidden'); // إظهار الفورم مرة أخرى في حالة الخطأ
             } finally {
                 setSubmitting(false);
             }
