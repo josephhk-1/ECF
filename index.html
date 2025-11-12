@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اسأل أبونا / Question au Père | ECF</title>
+    <!-- Chargement de Tailwind CSS pour un style moderne et responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Noto Sans Arabic pour l'arabe و Inter للفرنسي -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+            /* خلفية كريمية / Off-white */
+            background-color: #f7f7f0; 
+            direction: rtl; /* Démarre en Arabe */
+            text-align: right;
+        }
+        .text-coptic-blue { color: #1e40af; }
+        .bg-coptic-gold { background-color: #f59e0b; }
+        .shadow-coptic { box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2), 0 4px 6px -2px rgba(30, 64, 175, 0.1); }
+        .input-focus:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4);
+        }
+        /* Style spécifique للغة الفرنسية */
+        .ltr-layout {
+            direction: ltr;
+            text-align: left;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'coptic-blue': '#1e40af',
+                        'coptic-gold': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-center justify-center transition-all duration-300" id="body-container">
+
+    <!-- Script de gestion du bilingue -->
+    <script>
+        const texts = {
+            // Navigation
+            'lang-switch': { ar: 'Français', fr: 'العربية' },
+
+            // Header
+            'church-name': { 
+                ar: 'كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)', 
+                fr: 'Église Notre-Dame des Coptes (Paris 20e)' 
+            },
+            'main-title': { ar: 'يلا نسأل أبونا!', fr: 'Posez votre Question au Père !' },
+            'sub-title': { ar: 'مع قدس أبونا يشوع الأنبا بيشوي', fr: 'Avec le Rév. Père Yéshoua El Anba Bichoy' },
+            'subject-title': { 
+                ar: 'عن موضوع: ربنا عايز إيه مني؟!', 
+                fr: 'Sur le thème : Qu\'est-ce que Dieu veut de moi ?!' 
+            },
+            'deadline-text': { 
+                ar: 'آخر ميعاد لإرسال الأسئلة:', 
+                fr: 'Date limite pour l\'envoi des questions :' 
+            },
+            'deadline-time': { ar: 'الجمعة، الساعة 7 مساءً', fr: 'Vendredi, 19h00' },
+
+            // Form
+            'form-heading': { ar: 'سؤالك يهمنا كلنا!', fr: 'Votre question nous intéresse !' },
+            'form-subheading': { 
+                ar: 'ابعت سؤالك دلوقتي علشان أبونا يجاوب عليه يوم السبت.', 
+                fr: 'Envoyez votre question maintenant pour que le Père puisse y répondre samedi.' 
+            },
+            'name-label': { ar: 'الاسم (اختياري)', fr: 'Votre Nom (Optionnel)' },
+            'name-placeholder': { ar: 'لو عايز تكتب اسمك...', fr: 'Écrivez votre nom si vous le souhaitez...' },
+            'question-label': { ar: 'سؤالك عشان أبونا يجاوب عليه', fr: 'Votre question pour le Père' },
+            'question-placeholder': { ar: 'اكتب سؤالك بوضوح هنا...', fr: 'Écrivez votre question clairement ici...' },
+            'submit-button': { ar: 'ابعت سؤالك', fr: 'Envoyer ma Question' },
+            
+            // Messages
+            'msg-empty': { ar: 'يا ريت تكتب سؤالك الأول.', fr: 'Veuillez écrire votre question d\'abord.' },
+            'msg-success': { ar: 'سؤالك اتبعت بنجاح! شكراً على المشاركة.', fr: 'Votre question a été envoyée avec succès ! Merci de votre participation.' },
+            'msg-error': { ar: 'حصلت مشكلة في الإرسال. يا ريت تحاول تاني.', fr: 'Un problème est survenu lors de l\'envoi. Veuillez réessayer.' },
+
+            // Footer
+            'footer-phrase': { ar: 'مستنيينكم يوم السبت', fr: 'On vous attend ce Samedi' },
+            'footer-church': { ar: 'كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)', fr: 'Église Notre-Dame des Coptes (Paris 20e)' },
+            'footer-service': { ar: 'اجتماع شباب الأقباط في باريس', fr: 'Rassemblement des Étudiants Coptes de Paris' }
+        };
+
+        let currentLang = 'ar';
+
+        function updateContent(lang) {
+            currentLang = lang;
+            const body = document.getElementById('body-container');
+            
+            // 1. Gérer l'orientation RTL/LTR
+            if (lang === 'ar') {
+                body.classList.remove('ltr-layout');
+                body.classList.add('rtl-layout');
+                document.documentElement.lang = 'ar';
+            } else {
+                body.classList.remove('rtl-layout');
+                body.classList.add('ltr-layout');
+                document.documentElement.lang = 'fr';
+            }
+
+            // 2. Mettre à jour tous les éléments textuels
+            Object.keys(texts).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = texts[key][lang];
+                    } else if (element.tagName === 'BUTTON' || key === 'lang-switch') {
+                         element.textContent = texts[key][lang];
+                    } else {
+                        element.textContent = texts[key][lang];
+                    }
+                }
+            });
+        }
+
+        function toggleLanguage() {
+            const newLang = currentLang === 'fr' ? 'ar' : 'fr';
+            updateContent(newLang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateContent('ar'); // Démarrage en Arabe (Masry)
+            document.getElementById('lang-switch').addEventListener('click', toggleLanguage);
+        });
+    </script>
+    
+    <div class="container mx-auto p-6 md:p-10 bg-white rounded-xl shadow-coptic transition-all duration-300">
+        
+        <!-- Bouton de basculement de langue -->
+        <div class="flex justify-end mb-4">
+            <button id="lang-switch" class="bg-coptic-gold text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-coptic-blue transition duration-300 shadow-md">Français</button>
+        </div>
+
+        <!-- Logo الخدمة -->
+        <div class="flex justify-center mb-6">
+            <img src="logo.png" alt="شعار خدمة الشباب" class="w-24 h-24 object-contain rounded-full border-2 border-coptic-gold" onerror="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';">
+            <!-- Placeholder affiché si logo.png est absent (caché par défaut) -->
+            <div class="hidden w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500 font-semibold">
+                LOGO
+            </div>
+        </div>
+
+        <!-- En-tête de l'événement -->
+        <header class="text-center mb-10">
+            <h1 id="main-title" class="text-4xl md:text-5xl font-extrabold text-coptic-blue border-b-4 border-coptic-gold pb-2 mb-2">
+                يلا نسأل أبونا!
+            </h1>
+            <p id="sub-title" class="text-lg md:text-xl font-medium text-gray-700 mt-4">
+                مع قدس أبونا يشوع الأنبا بيشوي
+            </p>
+            <!-- اسم الموضوع الجديد الشبابي -->
+            <p id="subject-title" class="text-xl font-bold text-gray-800 mt-2">
+                عن موضوع: ربنا عايز إيه مني؟!
+            </p>
+            <p class="text-xl font-bold text-red-500 mt-6 bg-red-50 p-3 rounded-lg inline-block">
+                <span id="deadline-text">آخر ميعاد لإرسال الأسئلة:</span> 
+                <span id="deadline-time" class="text-2xl font-black">الجمعة، الساعة 7 مساءً</span>
+            </p>
+        </header>
+
+        <!-- Zone de soumission de la question -->
+        <section class="mt-8">
+            <h2 id="form-heading" class="text-2xl font-bold text-coptic-blue mb-2">
+                سؤالك يهمنا كلنا! 
+            </h2>
+            <p id="form-subheading" class="text-lg font-normal text-gray-600 mb-6">
+                ابعت سؤالك دلوقتي علشان أبونا يجاوب عليه يوم السبت.
+            </p>
+
+            <form id="questionForm" class="space-y-6">
+                
+                <!-- Champ Nom (اختياري / Optionnel) -->
+                <div>
+                    <label for="name" id="name-label" class="block text-lg font-medium text-gray-700">
+                        الاسم (اختياري)
+                    </label>
+                    <input type="text" name="name" id="name-placeholder"
+                           class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none input-focus transition duration-150">
+                </div>
+
+                <!-- Champ Question (مطلوب / Requis) -->
+                <div>
+                    <label for="question" id="question-label" class="block text-lg font-medium text-gray-700">
+                        سؤالك عشان أبونا يجاوب عليه
+                    </label>
+                    <textarea id="question-placeholder" name="question" rows="5" required 
+                              class="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none input-focus transition duration-150"></textarea>
+                </div>
+
+                <!-- Bouton de soumission -->
+                <button type="submit" id="submitButton"
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-white bg-coptic-blue hover:bg-coptic-gold transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-coptic-blue focus:ring-opacity-50">
+                    <span id="submit-button">ابعت سؤالك</span>
+                    <svg id="loadingSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+
+                <!-- Message de succès/خطأ -->
+                <div id="messageBox" class="p-4 mt-4 rounded-lg text-center hidden font-semibold" role="alert"></div>
+
+            </form>
+        </section>
+
+        <!-- Pied de page (بالعامية المصرية) -->
+        <footer class="text-center mt-12 pt-6 border-t border-gray-200">
+            <p id="footer-phrase" class="text-2xl font-black text-coptic-gold">
+                مستنيينكم يوم السبت
+            </p>
+            <p id="footer-service" class="text-sm text-gray-700 mt-2">
+                اجتماع شباب الأقباط في باريس
+            </p>
+            <!-- اسم الكنيسة (المكان) -->
+            <p id="footer-church" class="text-xs text-gray-500 mt-1">
+                كنيسة السيدة العذراء للأقباط الأرثوذكس (باريس 20)
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Script de soumission vers FormSubmit (pour envoi à l'email) -->
+    <script>
+        // **********************************************************
+        // *** ⚠️ ÉTAPE CRUCIALE: REMPLACEZ CET URL APRES VERIFICATION DE L'EMAIL ⚠️ ***
+        // **********************************************************
+        // تم تعيين هذا المتغير الآن لربط إرسال النموذج مباشرة بإيميلك.
+        // يجب عليك فقط تفعيل الرابط الذي سيصلك على الإيميل بعد أول تجربة إرسال.
+        const ACTION_URL = 'https://formsubmit.co/eng.joseph.h.kamal@gmail.com'; 
+        const EMAIL_RECEIVER = 'eng.joseph.h.kamal@gmail.com'; 
+        const EMAIL_SUBJECT = 'يلا نسأل أبونا - سؤال جديد';
+        // **********************************************************
+
+        const form = document.getElementById('questionForm');
+        const submitButton = document.getElementById('submitButton');
+        const messageBox = document.getElementById('messageBox');
+
+        // Fonction d'affichage du message
+        function displayMessage(text, isSuccess) {
+            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            messageBox.classList.add(isSuccess ? 'bg-green-100' : 'bg-red-100', isSuccess ? 'text-green-700' : 'text-red-700');
+            messageBox.textContent = text;
+        }
+
+        // Fonction pour gérer le statut du bouton
+        function setSubmitting(isSubmitting) {
+            submitButton.disabled = isSubmitting;
+            document.getElementById('loadingSpinner').classList.toggle('hidden', !isSubmitting);
+            document.getElementById('submit-button').classList.toggle('hidden', isSubmitting);
+            submitButton.classList.toggle('opacity-70', isSubmitting);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageBox.classList.add('hidden');
+
+            const name = form.querySelector('input[name="name"]').value;
+            const question = form.querySelector('textarea[name="question"]').value;
+
+            // Simple validation
+            if (!question.trim()) {
+                displayMessage(texts['msg-empty'][currentLang], false); 
+                return;
+            }
+
+            // Construire les données pour l'envoi
+            const formData = new FormData();
+            
+            // Champs FormSubmit requis
+            formData.append('_subject', EMAIL_SUBJECT); // Titre de l'الـ email
+            formData.append('_replyto', EMAIL_RECEIVER); // Optionnel: للرد مباشرة على الإيميل
+            
+            // Champs de l'utilisateur
+            formData.append('الاسم (Name)', name || (currentLang === 'ar' ? 'لم يذكر اسمه' : 'Anonymous'));
+            formData.append('السؤال (Question)', question);
+            
+            setSubmitting(true);
+
+            // ⚠️ تنبيه: لا حاجة للتحقق من YOUR_FORMSUBMIT_ACTION_URL هنا لأنه تم تعيينه فعليًا.
+            
+            try {
+                // Envoi à FormSubmit (Utilise mode: 'no-cors' implicitement pour éviter les erreurs de console)
+                const response = await fetch(ACTION_URL, {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                // FormSubmit يعيد توجيه المتصفح في حالة النجاح،
+                // ولكن في بيئة الـ iFrame (المعاينة)، يظهر كإرسال ناجح.
+                
+                form.reset();
+                displayMessage(texts['msg-success'][currentLang], true);
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                displayMessage(texts['msg-error'][currentLang], false);
+            } finally {
+                setSubmitting(false);
+            }
+        });
+    </script>
+
+</body>
+</html>
